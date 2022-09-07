@@ -1,0 +1,361 @@
+#include<iostream>
+#include<string>
+
+using namespace std;
+
+/// @brief 
+struct students {
+ string name;
+ students *next;
+ students *previous;
+};
+struct subjects {
+ string name;
+ students *header;
+ subjects *next;
+};
+//////////////////////////////class 
+class circularLinkedList
+{
+subjects* last = NULL;
+public:
+    void add_subject(string subject_name);
+    void add_student(string student_name , string subject_name);
+    void delete_subject(string subject_name);
+    void delete_student(string student_name, string subject_name);
+    void print_students(string subject_name);
+    void print_subjects();
+};
+/////////////////////////////////function to add subjects
+void circularLinkedList :: add_subject(string subject_name) 
+{
+   subjects* temp = new subjects;
+   temp->name = subject_name;
+
+  if (last == NULL)
+    {
+      last=temp;
+      last->next = last;
+    }
+
+   else 
+     {
+         temp->next = last->next;
+         last->next = temp;
+     }
+
+}
+//////////////////////////////////function to print subjects
+void circularLinkedList::print_subjects()
+{
+     subjects* n = last->next;
+     subjects* count=last;
+     if (n == NULL)
+     {
+       return;
+     }
+     else
+     {
+     do
+     {
+         cout << n->name << " ";
+         n = n->next;
+     }
+     while (n != last->next);
+
+}
+}
+
+/////////////////////////////////////////function to add students
+void circularLinkedList::add_student(string student_name , string subject_name)
+{
+     subjects* count=last;
+     bool X = false;
+     if(count==NULL)
+      {
+         cout<<"Subject not found";
+         return;
+      }
+   
+    do
+     {
+        if(count->name.compare(subject_name)==0)
+     {
+          X=true;
+          break ;
+     }
+     count=count->next;
+     }
+    while(count!=last);
+      if(X==false)
+     {
+         cout<<" no such Subject found"<<endl;
+         return;
+     }
+
+     students* temp = new students;
+     if(count->header==NULL)
+     {  
+       count->header=temp;               //for first student to be added
+     }
+    else                               //if students are already added in the subject
+     {   
+	    students* y=count->header;
+        while(y->next!=NULL)
+         {
+           y=y->next;
+         }
+             y->next=temp;
+             temp->previous=y;
+     }
+             temp->name=student_name;
+}
+
+//////////////function to print students
+void circularLinkedList::print_students(string subject_name)
+{   
+     subjects*count = last;
+     bool X = false;
+     if (count==NULL)
+     {
+     	cout<<"no such subject found"<<endl;
+     	return;
+	 }
+    do
+    {
+      if(count->name.compare(subject_name)==0)
+     {
+        X=true;
+        return ;
+     }
+     count=count->next;
+    }
+    while(count!=last);
+     if(X=false)
+     {
+        cout<<"Subject  found"<<endl;
+        students* n = count->header;
+         while (n != NULL)
+     {
+          n = n->next;
+          cout<<endl;
+     }
+        return;
+     }
+     
+     if(count->header==NULL)   //////if there is no student added yet
+     {
+        cout<<"student not found"<<endl;
+     }
+} 
+//////////////////////////////////////function for delete a student
+void circularLinkedList:: delete_student(string student_name, string subject_name)
+{
+    bool X=false;
+    subjects* n=last;
+
+    if(n==NULL)
+     {
+     	return;
+     }
+    else
+   {
+       do
+     {
+	 if(n->name.compare(subject_name)==0)    ////////compare() return 0 for matched string
+	 {
+	     X=true;	
+         break;
+	 }
+      n=n->next;
+     }
+     while(n!=last);
+     }
+
+     if(X==true)
+     {
+	     X=false;	
+	     students* count=n->header;
+	
+	  if(count==NULL)
+     {   
+	    cout<<"\n\t\tSTUDENT NOT FOUND ";
+        return;
+     }
+    else
+	{
+    while(count!=NULL)
+    {  
+	if(count->name.compare(student_name)==0)
+	{
+	 X=true;	
+     break; 
+	}
+        count=count->next;
+	}
+
+    }
+    if(X==true)
+    {
+    	if(count->previous==NULL)
+    	{
+    		n->header=count->next;
+    		delete count;
+    		return;
+		}
+        count->previous->next=count->next;
+    	delete count;
+    	return;
+	}
+	else
+	{
+	   cout<<"\n\t\tSTUDENT NOT FOUND ";
+       return;	
+	}
+    }
+	else
+	 {
+	    cout<<"\n\t\t\t\tSUBJECT NOT FOUND";
+     }
+}
+
+////////////////////function for deleting subjects
+void circularLinkedList:: delete_subject(string subject_name)
+{
+    bool X=false;
+    subjects* n=last;          //again a subejct type pointer  to find subject in the circular array
+    if( n==NULL)
+     {
+    	 return;
+	 }
+     else
+     {
+        do
+         {
+	        if(n->name.compare(subject_name)==0)
+	     {
+	         X=true;	
+            break;
+	     }
+         n=n->next;
+         }
+         while(n!=last);
+     }
+     if(X==0)     //if subject found
+     {
+     while(n->header!=NULL)        //delet students in the subject from last 
+         {  	
+             students* count=n->header;        //every time count is deleted in the last of the loop a new count pointing to the header is created.
+              while(count->next!=NULL)          
+               {
+   	            count=count->next;              //count search for the last element in the array and then count is deleted
+               }
+               if(count->previous!=NULL)
+                {
+                   count->previous->next=NULL;
+                    delete count;
+                }
+               else
+                  {
+                      n->header=NULL;
+   	                  delete count;
+                  }
+   }
+   subjects * count=last;
+    do
+	{
+	    count=count->next;
+	}while(count->next!=n);
+	if(n->next==n)
+	{  last=NULL;
+		delete n;
+		return;
+	}
+	  count->next=n->next;           //delete subject
+	  delete n;
+      return;
+}
+  else
+	{
+	    cout<<"\n\t\t\t\tSUBJECT NOT FOUND ";
+	}
+
+}
+
+///////Function for the Main Menu
+int main()
+{
+	int x = 0;
+	circularLinkedList obj;
+	string st_name, sub_name;
+	do
+	{
+		system("cls");
+		cout << "				Assignment No. 3				" << endl;
+		cout << "		Welcome to the Student Management System:		"<<endl;
+		cout << "			You have the Following Options:" << endl;
+		cout << "	Press 1 to Add Subject in the List" << endl;
+		cout << "	Press 2 to Delete Subject from the List" << endl;
+		cout << "	Press 3 to Add Student in a specific Subject list" << endl;
+		cout << "	Press 4 to Delete Student from a specific Subject list" << endl;
+		cout << "	Press 5 to Print List of all added Students of a specific Subject list" << endl;
+		cout << "	Press 6 to Print List of all added Subjects" << endl;
+		cout << "	Press 7 to Exit the Management System" << endl;
+		cout << "	Select ONE of the above: ";
+		cin >> x;
+		switch (x)
+		{
+		case 1:
+			cout<<"\n\n\t\t\tENTER SUBJECT NAME ";
+			cin>>sub_name;
+			obj.add_subject(sub_name);
+			cout<<"\n\n\n\n\n";
+			break;
+		case 2:
+			cout<<"\n\n\t\t\tENTER SUBJECT NAME ";
+			cin.ignore();
+			cin>>sub_name;
+			obj.delete_subject(sub_name);
+			cout<<"\n\n\n\n\n";
+			break;
+		case 3:
+			cout<<"\n\n\t\t\tENTER SUBJECT NAME ";
+			cin.ignore();
+			cin>>sub_name;
+			cout<<"\n\n\t\t\tENTER STUDENT NAME ";
+			cin>>st_name;
+			obj.add_student(st_name,sub_name);
+			cout<<"\n\n\n\n\n";
+			break;
+		case 4:
+			cout<<"\n\n\t\t\tENTER SUBJECT NAME ";
+			cin.ignore();                          //remove value of integer 'x' from the buffer
+			cin>>sub_name;
+			cout<<"\n\n\t\t\tENTER STUDENT NAME ";
+			cin>>st_name;
+			obj.delete_student(st_name,sub_name);
+			cout<<"\n\n\n\n\n";
+			break;
+		case 5:
+			cout<<"\n\n\t\t\tENTER SUBJECT NAME ";
+			cin.ignore();                           //remove value of integer 'x' from the buffer    
+			cin>>sub_name;
+			obj.print_students(sub_name);
+			cout<<"\n\n\n\n\n";
+			break;
+		case 6:
+			obj.print_subjects();
+			cout<<"\n\n\n\n\n";
+			break;
+		case 7:
+		    x=0;
+			break;
+		default:
+			cout<<"\n\n\t\t\tincorrect input\n\n";
+			break;
+		}
+		system ("pause");
+	}
+	while (x != 0);
+	return 0;
+}
